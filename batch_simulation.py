@@ -7,7 +7,7 @@ import numpy as np
 with open("config/config_omni.yaml", 'rb') as f:
     conf = yaml.safe_load(f.read())  # load the config file
 
-Ns = [10, 15, 20, 50]
+Ns = [10, 15, 20, 50,100]
 x = [[] for _ in range(len(Ns))]
 y = [[] for _ in range(len(Ns))]
 refx = [[] for _ in range(len(Ns))]

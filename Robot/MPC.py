@@ -1,8 +1,6 @@
 
 import numpy as np
-import numpy as np
-import control
-import scipy.linalg
+
 
 class MPC:
     def __init__(self, cfg, augmented=False):

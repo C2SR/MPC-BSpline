@@ -10,7 +10,7 @@ import numpy as np
 
 
 
-bags = ['bags/bags/aug02.bag', 'bags/bags/aug02.bag', 'bags/bags/aug06.bag','bags/bags/aug02.bag']
+bags = ['bags/aug02.bag', 'bags/aug04.bag', 'bags/aug06.bag','bags/aug065.bag']
 vel = ["0.2m/s","0.4m/s","0.6m/s","0.65m/s"]
 news = [True,True,False,True]
 x = [[] for _ in range(len(bags))]

@@ -7,8 +7,11 @@ import argparse
 
 parser = argparse.ArgumentParser(description='MPC')
 parser.add_argument('--map', type=str, default="splines/map.yaml", help='Map YAML')
-parser.add_argument('--k', type=int, default=6, help='B-Spline Order')
-parser.add_argument('--v', type=float, default=6, help='Robot Nominal Speed')
+parser.add_argument('--k', type=int, default=4, help='B-Spline Order') #results in paper simulation with k=6
+parser.add_argument('--Lambda', type=float, default=0.5, help='B-Spline Lambda Corner Detection Hyperparameter')
+parser.add_argument('--vmax', type=float, default=0.6, help='Robot Nominal Speed')
+parser.add_argument('--vmin', type=float, default=0.4, help='Robot Minimal Speed')
+parser.add_argument('--delta', type=float, default=0.02, help='Robot Accelaration')
 parser.add_argument('--path', type=list, default=[21, 17, 10, 34, 0, 1, 2, 3, 4, 6, 13, 20, 22, 23, 24, 25, 26, 35, 16, 9, 5, 31, 30, 4, 6, 13, 20, 22,
                  33, 32, 21], help='B-Spline Control Points')
 parser.add_argument('--f', type=float, default=50, help='Control Cycle Frequency')
@@ -63,7 +66,9 @@ x_path = interpolate.splev(xx, tck_x)
 x_path_der = interpolate.splev(xx, tck_x, der=1)
 y_path = interpolate.splev(yy, tck_y)
 y_path_der = interpolate.splev(yy, tck_y, der=1)
-speed = args.v
+x_path_2nd_der = interpolate.splev(xx,tck_x,der=2)
+y_path_2nd_der = interpolate.splev(yy,tck_y,der=2)
+speed = args.vmin
 dt = 1 / args.f
 dist = speed * dt
 x_trajectory = [x_path[0]]
@@ -73,9 +78,21 @@ for i in range(len(x_path) - 1):
     start = np.array([x_trajectory[-1], y_trajectory[-1]]) / 1000
     end = np.array([x_path[i], y_path[i]]) / 1000
     dist_between_points = np.linalg.norm(start - end, 2)
+    #dist = speed * dt
     if dist_between_points > dist - dist * 0.01:
         x_trajectory.append(x_path[i])
         y_trajectory.append(y_path[i])
+        grad = np.array([x_path_der[i],y_path_der[i]])
+        grad = grad / np.linalg.norm(grad)
+        hessian = np.array([x_path_2nd_der[i],y_path_2nd_der[i]])
+        hessian = hessian / np.linalg.norm(hessian)
+        dot_product = np.dot(hessian,grad)
+        if abs(dot_product) <= args.Lambda :
+            speed = max(speed-args.delta,args.vmin)
+        else:
+            speed = min(speed+args.delta,args.vmax)
+        print(speed)
+        
 
 plt.plot(x_path, y_path, 'b-', lw=4, alpha=0.4, label='BSpline')
 x_trajectory = np.array(x_trajectory) / 1000

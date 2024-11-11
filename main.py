@@ -4,9 +4,13 @@ from Robot.Omnidirectional import *
 import yaml
 import numpy as np
 from tqdm import trange
-with open("config/config_omni.yaml", 'rb') as f:
-    conf = yaml.safe_load(f.read())  # load the config file
+import argparse
 
+parser = argparse.ArgumentParser(description='MPC')
+parser.add_argument('--cfg', type=str, default="config/config_omni.yaml", help='Robot Config')
+args = parser.parse_args()
+with open(args.robot_cfg, 'rb') as f:
+    conf = yaml.safe_load(f.read())  # load the config file
 x = []
 y = []
 refx = []
